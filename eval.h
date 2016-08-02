@@ -5,6 +5,7 @@
     #include "mpc.h"
     #include "lval.h"
 
-    lval eval_op(lval x, char* op, lval y);
-    lval eval(mpc_ast_t* t);
+    lval* lval_eval(lval* v);
+    lval* lval_eval_sexpr(lval* v);
+    lval* builtin_op(lval* a, char* op);
 #endif
