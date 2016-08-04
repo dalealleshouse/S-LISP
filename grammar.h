@@ -7,6 +7,7 @@
         mpc_parser_t* number;
         mpc_parser_t* symbol;
         mpc_parser_t* sexpr;
+        mpc_parser_t* qexpr;
         mpc_parser_t* expr; 
         mpc_parser_t* slisp;
     } grammar_parsers;

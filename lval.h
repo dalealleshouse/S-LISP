@@ -7,7 +7,7 @@
 
     #include "mpc.h"
 
-    enum { LVAL_ERR, LVAL_NUM, LVAL_SYM, LVAL_SEXPR };
+    enum { LVAL_ERR, LVAL_NUM, LVAL_SYM, LVAL_SEXPR, LVAL_QEXPR };
 
     typedef struct lval {
         int type;
@@ -22,6 +22,7 @@
     lval* lval_err(char* m);
     lval* lval_sym(char* s);
     lval* lval_sexpr(void);
+    lval* lval_qexpr(void);
     lval* lval_read_num(mpc_ast_t* t);
     lval* lval_read(mpc_ast_t* t);
     lval* lval_add(lval* v, lval* x);
