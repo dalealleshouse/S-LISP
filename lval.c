@@ -1,5 +1,9 @@
 #include "lval.h"
 
+#define LVAL_COPY_STRING(prop, from, to) \
+    to->prop = malloc(strlen(from->prop) + 1); \
+    strcpy(to->prop, from->prop);
+
 lval* lval_num(long x) {
     lval* v = malloc(sizeof(lval));
     v->type = LVAL_NUM;
@@ -20,6 +24,13 @@ lval* lval_sym(char* s) {
     v->type = LVAL_SYM;
     v->sym = malloc(strlen(s) + 1);
     strcpy(v->sym, s);
+    return v;
+}
+
+lval* lval_fun(lbuiltin func) {
+    lval* v = malloc(sizeof(lval));
+    v->type = LVAL_FUN;
+    v->fun = func;
     return v;
 }
 
@@ -72,6 +83,7 @@ lval* lval_read(mpc_ast_t* t) {
 
 void lval_del(lval* v) {
     switch (v->type) {
+        case LVAL_FUN:
         case LVAL_NUM:
             break;
         case LVAL_ERR:
@@ -90,6 +102,36 @@ void lval_del(lval* v) {
     }
 
     free(v);
+}
+
+lval* lval_copy(lval* v) {
+    lval* x = malloc(sizeof(lval));
+    x->type = v->type;
+
+    switch(v->type){
+        case LVAL_FUN:
+            x->fun = v->fun;
+            break;
+        case LVAL_NUM:
+            x->num = v->num;
+            break;
+        case LVAL_ERR:
+            LVAL_COPY_STRING(err, v, x);
+            break;
+        case LVAL_SYM:
+            LVAL_COPY_STRING(sym, v, x);
+            break;
+        case LVAL_SEXPR:
+        case LVAL_QEXPR:
+            x->count = v->count;
+            x->cell = malloc(sizeof(lval*) * x->count);
+            for (int i = 0; i < x->count; i++) {
+                x->cell[i] = lval_copy(v->cell[i]);
+            }
+            break;
+    }
+
+    return x;
 }
 
 lval* lval_add(lval* v, lval* x) {
@@ -141,6 +183,9 @@ void lval_print(lval* v) {
             break;
         case LVAL_QEXPR:
             lval_expr_print(v, '{', '}'); 
+            break;
+        case LVAL_FUN:
+            printf("<function>");
             break;
     }
 }

@@ -5,6 +5,7 @@
 #include "grammar.h"
 #include "lval.h"
 #include "eval.h"
+#include "lenv.h"
 
 /*
 * Mac and Linux require functionality from the realine and editline libraries, which is default in windows
@@ -32,6 +33,8 @@
 
 int main(int argc, char** argv){
     grammar_parsers* gp = grammar_init();
+    lenv* e = lenv_new();
+    lenv_add_builtins(e);
     
     puts("SLISP Version 0.0.0.1");
     puts("Press Ctrl+c to Exit\n");
@@ -43,7 +46,7 @@ int main(int argc, char** argv){
         mpc_result_t r;
         if(mpc_parse("<stdin>", input, gp->slisp, &r))
         {
-            lval* x = lval_eval(lval_read(r.output));
+            lval* x = lval_eval(e, lval_read(r.output));
             lval_println(x);
             lval_del(x);
         } else {
@@ -53,6 +56,7 @@ int main(int argc, char** argv){
         free(input);
     }
 
+    lenv_del(e);
     grammar_free(gp);
     return 0;
 }
