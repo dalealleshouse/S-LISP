@@ -11,11 +11,18 @@ lval* lval_num(long x) {
     return v;
 }
 
-lval* lval_err(char* m) {
+lval* lval_err(char* fmt, ...) {
     lval* v = malloc(sizeof(lval));
     v->type = LVAL_ERR;
-    v->err = malloc(strlen(m) + 1);
-    strcpy(v->err, m);
+
+    va_list va;
+    va_start(va, fmt);
+
+    v->err = malloc(512);
+    vsnprintf(v->err, 511, fmt, va);
+    v->err = realloc(v->err, strlen(v->err) + 1);
+
+    va_end(va);
     return v;
 }
 
@@ -48,37 +55,6 @@ lval* lval_qexpr(void) {
     v->count = 0;
     v->cell = NULL;
     return v;
-}
-
-lval* lval_read_num(mpc_ast_t* t) {
-    errno = 0;
-    long x = strtol(t->contents, NULL, 10);
-    return errno != ERANGE
-        ? lval_num(x)
-        : lval_err("invalid number");
-}
-
-lval* lval_read(mpc_ast_t* t) {
-    if(strstr(t->tag, "number")) { return lval_read_num(t); }
-    if(strstr(t->tag, "symbol")) { return lval_sym(t->contents); }
-
-    lval* x = NULL;
-
-    if(strcmp(t->tag, ">") == 0) { x = lval_sexpr(); }
-    if(strstr(t->tag, "sexpr")) { x = lval_sexpr(); }
-    if(strstr(t->tag, "qexpr")) { x = lval_qexpr(); }
-
-    for(int i = 0; i < t->children_num; i++) {
-        if(strcmp(t->children[i]->contents, "(") == 0) { continue; }
-        if(strcmp(t->children[i]->contents, ")") == 0) { continue; }
-        if(strcmp(t->children[i]->contents, "{") == 0) { continue; }
-        if(strcmp(t->children[i]->contents, "}") == 0) { continue; }
-        if(strcmp(t->children[i]->tag, "regex") == 0) { continue; }
-
-        x = lval_add(x, lval_read(t->children[i]));
-    }
-
-    return x;
 }
 
 void lval_del(lval* v) {
@@ -141,6 +117,15 @@ lval* lval_add(lval* v, lval* x) {
     return v;
 }
 
+lval* lval_join(lval* x, lval* y) {
+    while (y->count) {
+        x = lval_add(x, lval_pop(y, 0));
+    }
+
+    lval_del(y);
+    return x;
+}
+
 lval* lval_pop(lval* v, int i) {
     lval* x = v->cell[i];
 
@@ -169,28 +154,26 @@ void lval_expr_print(lval* v, char open, char close) {
 
 void lval_print(lval* v) {
     switch(v->type) {
-        case LVAL_NUM:
-            printf("%li", v->num);
-            break;
-        case LVAL_ERR:
-            printf("Error: %s", v->err);
-            break;
-        case LVAL_SYM:
-            printf("%s", v->sym); 
-            break;
-        case LVAL_SEXPR:
-            lval_expr_print(v, '(', ')'); 
-            break;
-        case LVAL_QEXPR:
-            lval_expr_print(v, '{', '}'); 
-            break;
-        case LVAL_FUN:
-            printf("<function>");
-            break;
+        case LVAL_NUM: printf("%li", v->num); break;
+        case LVAL_ERR: printf("Error: %s", v->err); break;
+        case LVAL_SYM: printf("%s", v->sym); break;
+        case LVAL_SEXPR: lval_expr_print(v, '(', ')'); break;
+        case LVAL_QEXPR: lval_expr_print(v, '{', '}'); break;
+        case LVAL_FUN: printf("<function>"); break;
     }
 }
 
-void lval_println(lval* v) {
-    lval_print(v);
-    putchar('\n');
+void lval_println(lval* v) { lval_print(v); putchar('\n'); }
+
+char* ltype_name(int t) {
+    switch (t)
+    {
+        case LVAL_FUN: return "Function";
+        case LVAL_NUM: return "Number";
+        case LVAL_ERR: return "Error";
+        case LVAL_SYM: return "Symbol";
+        case LVAL_SEXPR: return "S-Expression";
+        case LVAL_QEXPR: return "Q-Expression";
+        default: return "Uknown";
+    }
 }

@@ -25,7 +25,7 @@ lval* lenv_get(lenv* e, lval* k) {
         }
     }
 
-    return lval_err("unbound symbol!");
+    return lval_err("Unbound symbol %s!", k->sym);
 }
 
 void lenv_put(lenv* e, lval* k, lval* v) {
@@ -68,4 +68,6 @@ void lenv_add_builtins(lenv* e) {
     lenv_add_builtin(e, "/", builtin_div);
     lenv_add_builtin(e, "%", builtin_mod);
     lenv_add_builtin(e, "^", builtin_pow);
+
+    lenv_add_builtin(e, "def", builtin_def);
 }

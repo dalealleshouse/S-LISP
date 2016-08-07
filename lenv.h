@@ -1,7 +1,6 @@
 #ifndef env_h
     #define env_h
     
-    #include "lenv.h"
     #include "lval.h"
     #include "eval.h"
 
