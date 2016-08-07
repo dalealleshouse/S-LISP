@@ -6,6 +6,8 @@
 #include "lval.h"
 #include "eval.h"
 #include "lenv.h"
+#include "builtin.h"
+#include "read.h"
 
 /*
 * Mac and Linux require functionality from the realine and editline libraries, which is default in windows
@@ -49,6 +51,7 @@ int main(int argc, char** argv){
             lval* x = lval_eval(e, lval_read(r.output));
             lval_println(x);
             lval_del(x);
+            mpc_ast_delete(r.output);
         } else {
             mpc_err_print(r.error);
             mpc_err_delete(r.error);
