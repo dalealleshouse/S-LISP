@@ -11,6 +11,9 @@
     struct lenv;
     typedef struct lval lval;
     typedef struct lenv lenv;
+    lenv* lenv_new(void);
+    void lenv_del(lenv*);
+    lenv* lenv_copy(lenv*);
 
     enum { LVAL_ERR, LVAL_NUM, LVAL_SYM, LVAL_FUN, LVAL_SEXPR, LVAL_QEXPR };
 
@@ -18,10 +21,16 @@
 
     typedef struct lval {
         int type;
+
         long num;
         char* err;
         char* sym;
-        lbuiltin fun;
+
+        lbuiltin builtin;
+        lenv* env;
+        lval* formals;
+        lval* body;
+        
         int count;
         struct lval** cell;
     } lval;
@@ -32,6 +41,7 @@
     lval* lval_sexpr(void);
     lval* lval_qexpr(void);
     lval* lval_fun(lbuiltin func);
+    lval* lval_lambda(lval* formals, lval* body);
     lval* lval_add(lval* v, lval* x);
     lval* lval_join(lval* x, lval* y);
     lval* lval_pop(lval* v, int i);

@@ -16,6 +16,9 @@
     lval* builtin_mod(lenv* e, lval* a);
     lval* builtin_pow(lenv* e, lval* a);
     lval* builtin_def(lenv* e, lval* a);
+    lval* builtin_put(lenv* e, lval* a);
+    lval* builtin_var(lenv* e, lval* a, char* func);
+    lval* builtin_lambda(lenv* e, lval* a);
     void lenv_add_builtin(lenv* e, char* name, lbuiltin func);
     void lenv_add_builtins(lenv* e);
 #endif
