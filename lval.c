@@ -52,6 +52,14 @@ lval* lval_lambda(lval* formals, lval* body) {
     return v;
 }
 
+lval* lval_str(char* s) {
+    lval* v = malloc(sizeof(lval));
+    v->type = LVAL_STR;
+    v->str = malloc(strlen(s)+1);
+    strcpy(v->str, s);
+    return v;
+}
+
 lval* lval_sexpr(void) {
     lval* v = malloc(sizeof(lval));
     v->type = LVAL_SEXPR;
@@ -92,6 +100,9 @@ void lval_del(lval* v) {
             }
             free(v->cell);
             break;
+        case LVAL_STR:
+            free(v->str);
+            break;
     }
 
     free(v);
@@ -128,6 +139,9 @@ lval* lval_copy(lval* v) {
             for (int i = 0; i < x->count; i++) {
                 x->cell[i] = lval_copy(v->cell[i]);
             }
+            break;
+        case LVAL_STR:
+            LVAL_COPY_STRING(str, v, x);
             break;
     }
 
@@ -192,7 +206,18 @@ void lval_print(lval* v) {
             }
             printf("<function>");
             break;
+        case LVAL_STR:
+            lval_print_str(v);
+            break;
     }
+}
+
+void lval_print_str(lval* v) {
+    char* escaped = malloc(strlen(v->str)+1);
+    strcpy(escaped, v->str);
+    escaped = mpcf_escape(escaped);
+    printf("\"%s\"", escaped);
+    free(escaped);
 }
 
 void lval_println(lval* v) { lval_print(v); putchar('\n'); }
@@ -218,6 +243,8 @@ int lval_eq(lval* x, lval* y) {
             }
             return 1;
             break;
+        case LVAL_STR:
+            return (strcmp(x->str, y->str) == 0);
     }
 
     return 0;
@@ -232,6 +259,7 @@ char* ltype_name(int t) {
         case LVAL_SYM: return "Symbol";
         case LVAL_SEXPR: return "S-Expression";
         case LVAL_QEXPR: return "Q-Expression";
+        case LVAL_STR: return "String";
         default: return "Uknown";
     }
 }

@@ -15,7 +15,7 @@
     void lenv_del(lenv*);
     lenv* lenv_copy(lenv*);
 
-    enum { LVAL_ERR, LVAL_NUM, LVAL_SYM, LVAL_FUN, LVAL_SEXPR, LVAL_QEXPR };
+    enum { LVAL_ERR, LVAL_NUM, LVAL_SYM, LVAL_STR, LVAL_FUN, LVAL_SEXPR, LVAL_QEXPR };
 
     typedef lval*(*lbuiltin)(lenv*, lval*);
 
@@ -25,6 +25,7 @@
         long num;
         char* err;
         char* sym;
+        char* str;
 
         lbuiltin builtin;
         lenv* env;
@@ -42,6 +43,7 @@
     lval* lval_qexpr(void);
     lval* lval_fun(lbuiltin func);
     lval* lval_lambda(lval* formals, lval* body);
+    lval* lval_str(char* s);
     lval* lval_add(lval* v, lval* x);
     lval* lval_join(lval* x, lval* y);
     lval* lval_pop(lval* v, int i);
@@ -51,6 +53,7 @@
     void lval_expr_print(lval* v, char open, char close);
     void lval_print(lval* v);
     void lval_println(lval* v);
+    void lval_print_str(lval* v);
     int lval_eq(lval* x, lval* y);
     char* ltype_name(int t);
 #endif
