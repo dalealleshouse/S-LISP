@@ -51,5 +51,6 @@
     void lval_expr_print(lval* v, char open, char close);
     void lval_print(lval* v);
     void lval_println(lval* v);
+    int lval_eq(lval* x, lval* y);
     char* ltype_name(int t);
 #endif
