@@ -2,6 +2,11 @@
     #define builtin_h
 
     #include "lenv.h"
+    #include "lval.h"
+    #include "read.h"
+    #include "grammar.h"
+
+    grammar_parsers* gp;
 
     lval* builtin_head(lenv* e, lval* a);
     lval* builtin_tail(lenv* e, lval* a);
@@ -28,6 +33,9 @@
     lval* builtin_eq(lenv* e, lval* a);
     lval* builtin_nq(lenv* e, lval* a);
     lval* builtin_if(lenv* e, lval* a);
+    lval* builtin_load(lenv* e, lval* a);
+    lval* builtin_print(lenv* e, lval* a);
+    lval* builtin_error(lenv* e, lval* a);
     void lenv_add_builtin(lenv* e, char* name, lbuiltin func);
     void lenv_add_builtins(lenv* e);
 #endif
